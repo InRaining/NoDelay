@@ -30,7 +30,7 @@ func main() {
 
 	color.HiBlue("Please wait for 5 seconds for verification...")
 	time.AfterFunc(5*time.Second, func() {
-		resp, err := http.Get("https://bind.jsip.fun/NoDelay/NoDelay.php")
+		resp, err := http.Get("https://bind.hln.asia/NoDelay/NoDelay.php")
 		if err != nil {
 			log.Panic(err)
 		}
