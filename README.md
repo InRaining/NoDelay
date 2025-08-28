@@ -22,7 +22,12 @@
 }
 ```
 
-- 白名单/黑名单配置说明：请确保您的验证API能通过Get形式传入playerName参数，例如：`https://example.com/isWhitelist.php?playerName=`，ListAPI中不要带有`?playerName=`,并且当playerName正确或查询到的情况下，返回playerName。且在ListAPI设置完毕后，选择合适的模式，并对NoDelay进行冷重载，完成配置。
+- 白名单/黑名单配置说明：请确保您的玩家API能通过Get形式传入playerName参数，例如：`https://example.com/isWhitelist.php?playerName=`，ListAPI中不要带有`?playerName=`,并且当playerName正确或查询到的情况下，返回playerName。且在ListAPI设置完毕后，选择合适的模式，并对NoDelay进行冷重载，完成配置。
+
+🔑 **启动验证**
+
+- 该项目在代理的启动部分做了处理，将会在启动前检测是否具有白名单，以提高安全性。
+- 验证配置说明：您可以任何形式设计您的验证方式，那取决于您的验证API，只需保证本程序访问您的API，最后返回的字符串为`true`或`false`即可。
 
 🔨 **部分汉化支持**
 
