@@ -23,10 +23,10 @@ import (
 
 func main() {
 	log.SetOutput(color.Output)
-	console.SetTitle(fmt.Sprintf("ZBProxy %v | Running...", version.Version))
+	console.SetTitle(fmt.Sprintf("NoDelay %v | Running...", version.Version))
 	color.HiGreen("Welcome to NoDelay %s (%s)!\n", version.Version, version.CommitHash)
-	color.HiGreen("Developer: MKyiwuQwQ")
-	color.HiGreen("Repository: https://github.com/Mengke15/NoDelay")
+	color.HiGreen("Developer: InRaining")
+	color.HiGreen("Repository: https://github.com/InRaining/NoDelay")
 
 	color.HiBlue("Please wait for 5 seconds for verification...")
 	time.AfterFunc(5*time.Second, func() {
