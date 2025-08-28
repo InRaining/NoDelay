@@ -70,22 +70,12 @@ jobs:
       - name: Tidy up Go Modules
         run: go mod tidy
 
-      - name: Update Version
-        run: |
-          echo "package update" > usage/update/version.go
-          echo "" >> usage/update/version.go
-          echo "const CurrentVersion = \"${{ github.event.inputs.version }}\"" >> usage/update/version.go
-
-      - name: Get Git Commit Hash
-        id: hash
-        run: echo "git_hash=$(git rev-parse --short HEAD || echo "unknown version")" >> $GITHUB_OUTPUT
-
       - name: Run Tests
         run: go test ./...
 
       - name: Set Build Name
         run: |
-          BUILD_NAME="RelxLauncher-${{ matrix.goos }}-${{ matrix.goarch }}"
+          BUILD_NAME="NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}"
           if [ -n "${{ matrix.goamd64 }}" ]; then
             BUILD_NAME="$BUILD_NAME-${{ matrix.goamd64 }}"
           fi
@@ -114,10 +104,6 @@ jobs:
         with:
           path: bin/
           merge-multiple: true
-
-      - name: Get Git Commit Hash
-        id: hash
-        run: echo "git_hash=$(git rev-parse --short HEAD || echo "unknown version")" >> $GITHUB_OUTPUT
 
       - name: Upload Release
         uses: softprops/action-gh-release@v2
