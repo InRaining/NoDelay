@@ -78,3 +78,52 @@ func generateNewMessage(s *config.ConfigProxyService, name string) mcprotocol.Me
 		},
 	}
 }
+
+func generateJokeMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
+	return mcprotocol.Message{
+		Color: mcprotocol.White,
+		Extra: []mcprotocol.Message{
+			{Bold: true, Color: mcprotocol.Red, Text: "You are premanently banned from this server!\n\n"},
+
+			{Color: mcprotocol.Gray, Text: "Reason: "},
+			{Text: "Suspicious activity has been detected on your account.\n"},
+			{Color: mcprotocol.Gray, Text: "Find out more: "},
+			{Color: mcprotocol.Aqua, UnderLined: true, Text: "https://hypixel.net/security\n\n"},
+			{Color: mcprotocol.Gray, Text: "Ban ID: "},
+
+			{
+				Text: fmt.Sprintf("#%d\n",
+					time.Now().UnixMilli()),
+			},
+			{Color: mcprotocol.Gray, Text: "Sharing your Ban ID may affect the processing of your appeal!"},
+		},
+	}
+}
+
+func generateDownMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
+	return mcprotocol.Message{
+		Color: mcprotocol.White,
+		Extra: []mcprotocol.Message{
+			{Bold: true, Color: mcprotocol.Yellow, Text: fmt.Sprintf("%s", config.Config.PrivateConfig.Header)},
+			{Text: " ‖ "},
+			{Bold: true, Color: mcprotocol.Gold, Text: "已拒绝服务\n"},
+
+			{Text: "您无法加入当前服务器！\n"},
+			{Text: "理由: "},
+			{Color: mcprotocol.LightPurple, Text: "当前正在进行停机维护！\n"},
+			{Text: "请关注官方QQ群内信息了解恢复时间！\n\n"},
+
+			{
+				Color: mcprotocol.Gray,
+				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s\n | 服务节点: %s\n",
+					time.Now().UnixMilli(), name, s.Name),
+			},
+			{Text: fmt.Sprintf("%s", config.Config.PrivateConfig.ContactName)},
+			{
+				Color: mcprotocol.Blue, UnderLined: true,
+				Text: fmt.Sprintf("%s", config.Config.PrivateConfig.ContactLink),
+				// ClickEvent: chat.OpenURL("http://qm.qq.com/cgi-bin/qm/qr?_wv=1027&k=eV_W6FV6hkjbeA35MNJ2lulA7M67JMig&authKey=E5hHr6NTSJ9u9z7eurOavBW9U6tE94P1EazZSGMGV71LCjsfvgMt0kXRaXyaDF4d&noverify=0&group_code=666259678"),
+			},
+		},
+	}
+}
