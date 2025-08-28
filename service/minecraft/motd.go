@@ -35,7 +35,7 @@ func generateMOTD(protocolVersion int, s *config.ConfigProxyService, options *tr
 			Name     string `json:"name"`
 			Protocol int    `json:"protocol"`
 		}{
-			Name:     "NoDelay" + version.Version,
+			Name:     "NoDelay " + version.Version,
 			Protocol: protocolVersion,
 		},
 		Players: struct {
