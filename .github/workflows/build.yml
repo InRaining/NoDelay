@@ -1,114 +1,59 @@
 name: build
 
 on:
+  release:
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Tag name of release"
-
+  
 jobs:
   build:
     strategy:
-      matrix:
-        include:
-          - goos: windows
-            goarch: amd64
-            goamd64: v1
-            ext: .exe
-          - goos: windows
-            goarch: amd64
-            goamd64: v3
-            ext: .exe
-          - goos: windows
-            goarch: arm64
-            ext: .exe
-          - goos: linux
-            goarch: amd64
-            goamd64: v1
-            ext: ""
-          - goos: linux
-            goarch: amd64
-            goamd64: v3
-            ext: ""
-          - goos: linux
-            goarch: arm64
-            ext: ""
+        matrix:
+          # Include amd64 on all platforms.
+          goos: [ windows, linux ]
+          goarch: [ amd64, 386 ]
+          goamd64: [ v1, v3 ]
 
     runs-on: ubuntu-latest
     env:
       GOOS: ${{ matrix.goos }}
       GOARCH: ${{ matrix.goarch }}
+      GOARM: ${{ matrix.goarm }}
       GOAMD64: ${{ matrix.goamd64 }}
       CGO_ENABLED: 0
-
+      
     steps:
-      - uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Ensure go.sum exists
-        run: |
-          if [ ! -f go.sum ]; then
-            echo "Creating empty go.sum file"
-            touch go.sum
-          fi
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: ^1.20
+        check-latest: true
 
-      - name: Cache Go Modules
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/go-build
-            ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+    - name: Tidy up Go Modules
+      run: go mod tidy
 
-      - name: Set up Go
-        uses: actions/setup-go@v5
-        with:
-          go-version: ^1.20
-          check-latest: true
+    - name: Get Git Commit Hash
+      id: hash
+      run: echo "git_hash=$(git rev-parse --short HEAD || echo "unknown version")" >> $GITHUB_OUTPUT
 
-      - name: Tidy up Go Modules
-        run: go mod tidy
+    - name: Build
+      run: go build -v -trimpath -ldflags '-X "github.com/layou233/ZBProxy/version.CommitHash=${{ steps.hash.outputs.git_hash }}" -s -w -buildid=' -o NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
 
-      - name: Run Tests
-        run: go test ./...
+    - name: Handle for Windows Build
+      if: ${{ env.GOOS == 'windows' }}
+      run: mv NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }} NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
 
-      - name: Set Build Name
-        run: |
-          BUILD_NAME="NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}"
-          if [ -n "${{ matrix.goamd64 }}" ]; then
-            BUILD_NAME="$BUILD_NAME-${{ matrix.goamd64 }}"
-          fi
-          BUILD_NAME="$BUILD_NAME${{ matrix.ext }}"
-          echo "BUILD_NAME=$BUILD_NAME" >> $GITHUB_ENV
+    - name: Upload a Non-Windows Build Artifact
+      uses: actions/upload-artifact@v3.1.2
+      if: ${{ env.GOOS != 'windows' }}
+      with:
+        name: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
+        path: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}
 
-      - name: Build
-        run: go build -v -trimpath -ldflags '-X "github.com/CubewhyMC/NoDelay-Proxy-Server/version.CommitHash=${{ steps.hash.outputs.git_hash }}" -s -w -buildid=' -o ${{ env.BUILD_NAME }}
-
-      - name: Compress Build Artifact
-        run: upx -9 ${{ env.BUILD_NAME }}
-
-      - name: Upload Build Artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ env.BUILD_NAME }}
-          path: ${{ env.BUILD_NAME }}
-
-  Publish:
-    permissions: write-all
-    if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version }}
-    needs: [ build ]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/download-artifact@v4
-        with:
-          path: bin/
-          merge-multiple: true
-
-      - name: Upload Release
-        uses: softprops/action-gh-release@v2
-        if: ${{ success() }}
-        with:
-          tag_name: ${{ github.event.inputs.version }}
-          files: bin/*
-          prerelease: false
+    - name: Upload a Windows Build Artifact
+      uses: actions/upload-artifact@v3.1.2
+      if: ${{ env.GOOS == 'windows' }}
+      with:
+        name: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
+        path: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}-${{ matrix.goarm }}${{ matrix.goamd64 }}.exe
