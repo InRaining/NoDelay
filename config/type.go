@@ -7,7 +7,8 @@ import (
 
 type configMain struct {
 	Services []*ConfigProxyService
-	PrivateConfig *Something
+	Configuration *Configure
+	TrafficLimiter *TrafficLimiterConfig
 	Lists    map[string]set.StringSet
 }
 
@@ -79,9 +80,15 @@ type outbound struct {
 	Address string `json:",omitempty"`
 }
 
-type Something struct {
+type Configure struct {
 	ListAPI        string
 	Header         string
 	ContactName    string
 	ContactLink    string
+}
+
+type TrafficLimiterConfig struct {
+	EnableTrafficLimit      bool
+	TrafficLimitMB          int64  `json:"omitempty"`
+	TrafficLimitKickMessage string `json:"omitempty"`
 }

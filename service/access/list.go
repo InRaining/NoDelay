@@ -18,7 +18,7 @@ func GetTargetList(listName string) (set.StringSet, error) {
 }
 
 func IsWhitelist(playerName string) (bool, error) {
-	resp, err := http.Get(config.Config.PrivateConfig.ListAPI + "?playerName=" + playerName)
+	resp, err := http.Get(config.Config.Configuration.ListAPI + "?playerName=" + playerName)
 	if err != nil {
 		return false, fmt.Errorf("failed to make HTTP request: %w", err)
 	}

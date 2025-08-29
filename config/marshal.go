@@ -8,7 +8,8 @@ import (
 
 type configMainTemp struct {
 	Services []*ConfigProxyService
-	PrivateConfig *Something
+	Configuration *Configure
+	TrafficLimiter *TrafficLimiterConfig
 	Lists    map[string][]string
 }
 
@@ -31,7 +32,8 @@ func (c *configMain) MarshalJSON() ([]byte, error) {
 	return json.Marshal(
 		configMainTemp{
 			Services: c.Services,
-			PrivateConfig: c.PrivateConfig,
+			Configuration: c.Configuration,
+			TrafficLimiter: c.TrafficLimiter,
 			Lists:    list,
 		},
 	)
@@ -40,7 +42,8 @@ func (c *configMain) MarshalJSON() ([]byte, error) {
 func (c *configMain) UnmarshalJSON(data []byte) (err error) {
 	configTemp := configMainTemp{
 		Services: c.Services,
-		PrivateConfig: c.PrivateConfig,
+		Configuration: c.Configuration,
+		TrafficLimiter: c.TrafficLimiter,
 	}
 	err = json.Unmarshal(data, &configTemp)
 	if err != nil {
@@ -57,6 +60,7 @@ func (c *configMain) UnmarshalJSON(data []byte) (err error) {
 		}
 	}
 	c.Services = configTemp.Services
-	c.PrivateConfig = configTemp.PrivateConfig
+	c.Configuration = configTemp.Configuration
+	c.TrafficLimiter = configTemp.TrafficLimiter
 	return nil
 }

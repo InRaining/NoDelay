@@ -70,7 +70,7 @@ func generateDefaultConfig() {
 				},
 			},
 		},
-		PrivateConfig: &Something{
+		Configuration: &Configure{
 			ListAPI:        "http://whitelist.hln-network.xyz/isWhitelist.php",
 			Header:         "HLN-Boost",
 			ContactName:    "官方QQ售后群",

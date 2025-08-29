@@ -13,7 +13,7 @@
 
 ```json
 {
-    "PrivateConfig": {
+    "Configuration": {
         "ListAPI": "http://bind.jsip.fun/isWhitelist.php",
         "Header": "HLN-Boost",
         "ContactName": "官方QQ售后群",

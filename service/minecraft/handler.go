@@ -14,6 +14,7 @@ import (
 	"github.com/InRaining/NoDelay/config"
 	"github.com/InRaining/NoDelay/service/access"
 	"github.com/InRaining/NoDelay/service/transfer"
+	"github.com/InRaining/NoDelay/service/traffic"
 
 	"github.com/fatih/color"
 )
@@ -26,6 +27,7 @@ var (
 	ErrRejectedLoginAccessControl             = errors.New("interrupted by access control")
 	ErrRejectedLoginPlayerNumberLimitExceeded = errors.New("rejected due to player number limit exceeded")
 	ErrBadPlayerName                          = errors.New("rejected due to bad player name")
+	ErrTrafficLimitExceeded                   = errors.New("traffic limit exceeded")
 )
 
 func badPacketPanicRecover(s *config.ConfigProxyService) {
@@ -172,6 +174,31 @@ func NewConnHandler(s *config.ConfigProxyService,
 		playerName = string(buffer.Bytes())
 	}
 
+	if s.Minecraft.EnableTrafficLimit && !traffic.CheckTrafficLimitByPlayer(s, playerName) {
+        used, limit, percentage := traffic.GetUserTrafficInfoByPlayer(playerName)
+        log.Printf("Service %s : %s Player %s rejected due to traffic limit. Usage: %.2f/%.0f MB (%.1f%%)",
+            s.Name, ctx.ColoredID, playerName, used, limit, percentage)
+
+        msg, err := generateTrafficLimitExceededMessage(s, playerName).MarshalJSON()
+        if err != nil {
+            return nil, err
+        }
+
+        buffer.Reset(mcprotocol.MaxVarIntLen)
+        common.Must0(mcprotocol.WriteToPacket(buffer,
+            byte(0x00), // Client bound : Disconnect (login)
+            mcprotocol.VarInt(len(msg)),
+        ))
+        err = conn.WriteVectorizedPacket(buffer, msg)
+        if err != nil {
+            return nil, err
+        }
+
+        c.(*net.TCPConn).SetLinger(10) //nolint:errcheck
+        c.Close()
+        return nil, ErrTrafficLimitExceeded
+    }
+
 	if s.Minecraft.OnlineCount.EnableMaxLimit && s.Minecraft.OnlineCount.Max <= int(options.OnlineCount.Load()) {
 		log.Printf("Service %s : %s Rejected a new Minecraft player login request due to online player number limit: %s", s.Name, ctx.ColoredID, playerName)
 		msg, err := generatePlayerNumberLimitExceededMessage(s, playerName).MarshalJSON()
@@ -223,6 +250,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 			}
 		}
 	}
+
 	log.Printf("Service %s : %s New Minecraft player logged in: %s [%s]", s.Name, ctx.ColoredID, playerName, accessibility)
 	ctx.AttachInfo("PlayerName=" + playerName)
 	if accessibility == "DENY" || accessibility == "REJECT" || accessibility == "NEW" || 
@@ -315,5 +343,10 @@ func NewConnHandler(s *config.ConfigProxyService,
 	if err != nil {
 		return nil, err
 	}
+
+    if s.Minecraft.EnableTrafficLimit {
+        return traffic.NewAccurateTrafficMonitorConn(remote, playerName, s), nil
+    }
+
 	return remote, nil
 }
