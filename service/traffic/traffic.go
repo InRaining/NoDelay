@@ -10,22 +10,7 @@ import (
     "github.com/InRaining/NoDelay/config"
 )
 
-// TrafficLimiterInterface 流量限制器接口
-type TrafficLimiterInterface interface {
-    CanUseTraffic(playerName string, bytes int64, defaultLimitMB int64) bool
-    RecordTraffic(playerName string, bytes int64)
-    GetUserInfo(playerName string) (used, limit float64, percentage float64)
-    Close()
-}
-
-var globalTrafficLimiter TrafficLimiterInterface
-
-// SetGlobalTrafficLimiter 设置全局流量限制器
-func SetGlobalTrafficLimiter(limiter TrafficLimiterInterface) {
-    globalTrafficLimiter = limiter
-}
-
-// CheckUserTrafficByPlayer 检查玩家是否可以使用指定的流量
+// CheckUserTrafficByPlayer checks if a player can use the specified amount of traffic.
 func CheckUserTrafficByPlayer(playerName string, bytes int64, defaultLimitMB int64) bool {
     if globalTrafficLimiter == nil {
         return true
@@ -33,14 +18,14 @@ func CheckUserTrafficByPlayer(playerName string, bytes int64, defaultLimitMB int
     return globalTrafficLimiter.CanUseTraffic(playerName, bytes, defaultLimitMB)
 }
 
-// RecordUserTrafficByPlayer 记录玩家使用的流量
+// RecordUserTrafficByPlayer records the traffic used by a player.
 func RecordUserTrafficByPlayer(playerName string, bytes int64) {
     if globalTrafficLimiter != nil {
         globalTrafficLimiter.RecordTraffic(playerName, bytes)
     }
 }
 
-// GetUserTrafficInfoByPlayer 获取玩家的流量使用信息
+// GetUserTrafficInfoByPlayer gets player traffic information.
 func GetUserTrafficInfoByPlayer(playerName string) (used, limit float64, percentage float64) {
     if globalTrafficLimiter == nil {
         return 0, 0, 0
@@ -48,25 +33,27 @@ func GetUserTrafficInfoByPlayer(playerName string) (used, limit float64, percent
     return globalTrafficLimiter.GetUserInfo(playerName)
 }
 
-// CheckTrafficLimitByPlayer 在玩家登录时检查流量限制
+// CheckTrafficLimitByPlayer checks the traffic limit for a player upon login.
 func CheckTrafficLimitByPlayer(s *config.ConfigProxyService, playerName string) bool {
-    if globalTrafficLimiter == nil || !s.Minecraft.EnableTrafficLimit {
+    // Traffic limit settings are global, not per-service.
+    // Access them from the global config.
+    if globalTrafficLimiter == nil || config.Config.TrafficLimiter == nil || !config.Config.TrafficLimiter.EnableTrafficLimit {
         return true
     }
 
-    defaultLimitMB := int64(1024) // 默认1GB
-    if s.Minecraft.TrafficLimitMB > 0 {
-        defaultLimitMB = s.Minecraft.TrafficLimitMB
+    defaultLimitMB := int64(1024) // Default 1GB
+    if config.Config.TrafficLimiter.TrafficLimitMB > 0 {
+        defaultLimitMB = config.Config.TrafficLimiter.TrafficLimitMB
     }
 
     used, limit, percentage := globalTrafficLimiter.GetUserInfo(playerName)
 
-    // 新玩家，允许连接并创建记录
+    // For new players, allow connection and create a record.
     if used == 0 && limit == 0 {
         return globalTrafficLimiter.CanUseTraffic(playerName, 0, defaultLimitMB)
     }
 
-    // 检查是否超过98%的使用率
+    // Check if usage exceeds 98%.
     if percentage >= 98.0 {
         log.Printf("Player %s traffic limit exceeded: %.2f MB / %.0f MB (%.1f%%)",
             playerName, used, limit, percentage)
@@ -76,7 +63,7 @@ func CheckTrafficLimitByPlayer(s *config.ConfigProxyService, playerName string) 
     return true
 }
 
-// AccurateTrafficMonitorConn 是一个net.Conn的包装器，用于精确监控流量
+// AccurateTrafficMonitorConn is a wrapper for net.Conn to accurately monitor traffic.
 type AccurateTrafficMonitorConn struct {
     net.Conn
     playerName      string
@@ -87,7 +74,7 @@ type AccurateTrafficMonitorConn struct {
     service         *config.ConfigProxyService
 }
 
-// NewAccurateTrafficMonitorConn 创建一个新的流量监控连接
+// NewAccurateTrafficMonitorConn creates a new traffic monitoring connection.
 func NewAccurateTrafficMonitorConn(conn net.Conn, playerName string, s *config.ConfigProxyService) net.Conn {
     return &AccurateTrafficMonitorConn{
         Conn:         conn,
@@ -107,7 +94,8 @@ func (tmc *AccurateTrafficMonitorConn) Read(b []byte) (n int, err error) {
 
         RecordUserTrafficByPlayer(tmc.playerName, int64(n))
 
-        if !CheckUserTrafficByPlayer(tmc.playerName, 0, tmc.service.Minecraft.TrafficLimitMB) {
+        // The traffic limit is global, so get it from the global config.
+        if config.Config.TrafficLimiter != nil && !CheckUserTrafficByPlayer(tmc.playerName, 0, config.Config.TrafficLimiter.TrafficLimitMB) {
             tmc.Close()
             return 0, fmt.Errorf("traffic limit exceeded for player %s", tmc.playerName)
         }
@@ -130,7 +118,8 @@ func (tmc *AccurateTrafficMonitorConn) Write(b []byte) (n int, err error) {
 
         RecordUserTrafficByPlayer(tmc.playerName, int64(n))
 
-        if !CheckUserTrafficByPlayer(tmc.playerName, 0, tmc.service.Minecraft.TrafficLimitMB) {
+        // The traffic limit is global, so get it from the global config.
+        if config.Config.TrafficLimiter != nil && !CheckUserTrafficByPlayer(tmc.playerName, 0, config.Config.TrafficLimiter.TrafficLimitMB) {
             tmc.Close()
             return 0, fmt.Errorf("traffic limit exceeded for player %s", tmc.playerName)
         }
