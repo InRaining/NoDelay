@@ -174,7 +174,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		playerName = string(buffer.Bytes())
 	}
 
-	if s.Minecraft.EnableTrafficLimit && !traffic.CheckTrafficLimitByPlayer(s, playerName) {
+	if config.Config.TrafficLimiter.EnableTrafficLimit && !traffic.CheckTrafficLimitByPlayer(s, playerName) {
         used, limit, percentage := traffic.GetUserTrafficInfoByPlayer(playerName)
         log.Printf("Service %s : %s Player %s rejected due to traffic limit. Usage: %.2f/%.0f MB (%.1f%%)",
             s.Name, ctx.ColoredID, playerName, used, limit, percentage)
@@ -344,7 +344,7 @@ func NewConnHandler(s *config.ConfigProxyService,
 		return nil, err
 	}
 
-    if s.Minecraft.EnableTrafficLimit {
+    if config.Config.TrafficLimiter.EnableTrafficLimit {
         return traffic.NewAccurateTrafficMonitorConn(remote, playerName, s), nil
     }
 

@@ -3,9 +3,11 @@ package minecraft
 import (
 	"fmt"
 	"time"
+	"strings"
 
 	"github.com/InRaining/NoDelay/common/mcprotocol"
 	"github.com/InRaining/NoDelay/config"
+	"github.com/InRaining/NoDelay/service/traffic"
 )
 
 func generateKickMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
@@ -23,7 +25,7 @@ func generateKickMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 
 			{
 				Color: mcprotocol.Gray,
-				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s\n | 服务节点: %s\n",
+				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s | 服务节点: %s\n",
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
@@ -51,7 +53,7 @@ func generatePlayerNumberLimitExceededMessage(s *config.ConfigProxyService, name
 
 			{
 				Color: mcprotocol.Gray,
-				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s\n | 服务节点: %s\n",
+				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s | 服务节点: %s\n",
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
@@ -115,7 +117,7 @@ func generateDownMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 
 			{
 				Color: mcprotocol.Gray,
-				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s\n | 服务节点: %s\n",
+				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s | 服务节点: %s\n",
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
@@ -131,8 +133,8 @@ func generateDownMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 func generateTrafficLimitExceededMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
     used, limit, percentage := traffic.GetUserTrafficInfoByPlayer(name)
 
-    if s.Minecraft.TrafficLimitKickMessage != "" {
-        message := s.Minecraft.TrafficLimitKickMessage
+    if config.Config.TrafficLimiter.TrafficLimitKickMessage != "" {
+        message := config.Config.TrafficLimiter.TrafficLimitKickMessage
         message = strings.ReplaceAll(message, "{player}", name)
         message = strings.ReplaceAll(message, "{used}", fmt.Sprintf("%.2f", used))
         message = strings.ReplaceAll(message, "{limit}", fmt.Sprintf("%.0f", limit))
@@ -159,7 +161,7 @@ func generateTrafficLimitExceededMessage(s *config.ConfigProxyService, name stri
 			{Text: "请联系管理员寻求帮助！\n\n"},
 			{
 				Color: mcprotocol.Gray,
-				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s\n | 服务节点: %s\n",
+				Text: fmt.Sprintf("时间戳: %d | 玩家名称: %s | 服务节点: %s\n",
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
