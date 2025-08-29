@@ -1,0 +1,84 @@
+name: build-test
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          # Windows builds
+          - goos: windows
+            goarch: amd64
+            goamd64: v1
+          - goos: windows
+            goarch: amd64
+            goamd64: v3
+          - goos: windows
+            goarch: 386
+          # Linux builds
+          - goos: linux
+            goarch: amd64
+            goamd64: v1
+          - goos: linux
+            goarch: amd64
+            goamd64: v3
+          - goos: linux
+            goarch: 386
+
+    runs-on: ubuntu-latest
+    env:
+      CGO_ENABLED: 0
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Go
+      uses: actions/setup-go@v5
+      with:
+        go-version: '^1.20'
+        check-latest: true
+
+    - name: Tidy up Go Modules
+      run: go mod tidy
+
+    - name: Get Git Commit Hash
+      id: hash
+      run: echo "git_hash=$(git rev-parse --short HEAD || echo "unknown")" >> $GITHUB_OUTPUT
+
+    - name: Build
+      env:
+        GOOS: ${{ matrix.goos }}
+        GOARCH: ${{ matrix.goarch }}
+        GOAMD64: ${{ matrix.goamd64 }}
+      run: |
+        output_name="NoDelay-${GOOS}-${GOARCH}"
+        [ -n "${GOAMD64}" ] && output_name="${output_name}-${GOAMD64}"
+        [ "${GOOS}" = "windows" ] && output_name="${output_name}.exe"
+        
+        go build -v -trimpath \
+          -ldflags "-X \"github.com/InRaining/NoDelay/version.CommitHash=${{ steps.hash.outputs.git_hash }}\" -s -w -buildid=" \
+          -o "${output_name}"
+
+    - name: Install UPX
+      run: sudo apt-get update && sudo apt-get install -y upx
+
+    - name: Compress with UPX
+      run: |
+        binary_name="NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}"
+        [ -n "${{ matrix.goamd64 }}" ] && binary_name="${binary_name}-${{ matrix.goamd64 }}"
+        [ "${{ matrix.goos }}" = "windows" ] && binary_name="${binary_name}.exe"
+        
+        echo "Compressing ${binary_name} with UPX..."
+        upx --best --lzma "${binary_name}"
+
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goamd64 && format('-{0}', matrix.goamd64) || '' }}${{ matrix.goos == 'windows' && '.exe' || '' }}
+        path: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goamd64 && format('-{0}', matrix.goamd64) || '' }}${{ matrix.goos == 'windows' && '.exe' || '' }}
