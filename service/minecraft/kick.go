@@ -29,6 +29,7 @@ func generateKickMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
+			{Text: ":"},
 			{
 				Color: mcprotocol.Blue, UnderLined: true,
 				Text: fmt.Sprintf("%s", config.Config.Configuration.ContactLink),
@@ -57,6 +58,7 @@ func generatePlayerNumberLimitExceededMessage(s *config.ConfigProxyService, name
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
+			{Text: ":"},
 			{
 				Color: mcprotocol.Blue, UnderLined: true,
 				Text: fmt.Sprintf("%s", config.Config.Configuration.ContactLink),
@@ -82,20 +84,20 @@ func generateNewMessage(s *config.ConfigProxyService, name string) mcprotocol.Me
 }
 
 func generateJokeMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
+	banID := generateRandomString(8)
+	banID := generateRandomStringWithCharset(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
 		Extra: []mcprotocol.Message{
-			{Bold: true, Color: mcprotocol.Red, Text: "You are premanently banned from this server!\n\n"},
+			{Bold: true, Color: mcprotocol.Red, Text: "You are permanently banned from this server!\n\n"},
 
 			{Color: mcprotocol.Gray, Text: "Reason: "},
 			{Text: "Suspicious activity has been detected on your account.\n"},
 			{Color: mcprotocol.Gray, Text: "Find out more: "},
 			{Color: mcprotocol.Aqua, UnderLined: true, Text: "https://hypixel.net/security\n\n"},
 			{Color: mcprotocol.Gray, Text: "Ban ID: "},
-
 			{
-				Text: fmt.Sprintf("#%d\n",
-					time.Now().UnixMilli()),
+				Text: fmt.Sprintf("#%s\n", banID),
 			},
 			{Color: mcprotocol.Gray, Text: "Sharing your Ban ID may affect the processing of your appeal!"},
 		},
@@ -121,6 +123,7 @@ func generateDownMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
+			{Text: ":"},
 			{
 				Color: mcprotocol.Blue, UnderLined: true,
 				Text: fmt.Sprintf("%s", config.Config.Configuration.ContactLink),
@@ -165,6 +168,7 @@ func generateTrafficLimitExceededMessage(s *config.ConfigProxyService, name stri
 					time.Now().UnixMilli(), name, s.Name),
 			},
 			{Text: fmt.Sprintf("%s", config.Config.Configuration.ContactName)},
+			{Text: ":"},
 			{
 				Color: mcprotocol.Blue, UnderLined: true,
 				Text: fmt.Sprintf("%s", config.Config.Configuration.ContactLink),
