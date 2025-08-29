@@ -71,10 +71,13 @@ func generateDefaultConfig() {
 			},
 		},
 		Configuration: &Configure{
-			ListAPI:        "http://whitelist.hln-network.xyz/isWhitelist.php",
+			ListAPI:        "http://bind.hln.asia/isWhitelist.php",
 			Header:         "HLN-Boost",
 			ContactName:    "官方QQ售后群",
 			ContactLink:    "666259678",
+		},
+		TrafficLimiter: &TrafficLimiterConfig{
+			EnableTrafficLimit: false,
 		},
 		Lists: map[string]set.StringSet{
 			//"test": {"foo", "bar"},
