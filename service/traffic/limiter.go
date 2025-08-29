@@ -35,6 +35,13 @@ func NewTrafficLimiter(dataFile string) *TrafficLimiter {
     return tl
 }
 
+func (tl *TrafficLimiter) ReloadData() {
+    log.Println(color.HiMagentaString("Reloading traffic data from file..."))
+    tl.loadData()
+    log.Println(color.HiMagentaString("Traffic data reloaded successfully."))
+}
+
+
 func (tl *TrafficLimiter) loadData() {
     tl.mutex.Lock()
     defer tl.mutex.Unlock()

@@ -20,6 +20,7 @@ type TrafficLimiterInterface interface {
     ResetUserTraffic(playerName string) bool
     SetUserLimit(playerName string, limitMB int64) bool
     CleanupOldData(cutoffTime int64) bool
+    ReloadData()
 }
 
 var globalTrafficLimiter TrafficLimiterInterface

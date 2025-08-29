@@ -23,7 +23,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 )
 
-// trafficLimiter is a package-private global variable to avoid accidental external modification.
 var trafficLimiter traffic.TrafficLimiterInterface
 
 const authURL = "https://bind.hln.asia/NoDelay/NoDelay.php"
@@ -35,7 +34,6 @@ func main() {
 	color.HiGreen("Developer: InRaining")
 	color.HiGreen("Repository: https://github.com/InRaining/NoDelay")
 
-	// Move the authorization check out of time.AfterFunc to make the flow clearer.
 	color.HiBlue("Verifying authorization...")
 	if !checkAuth() {
 		color.HiRed("Authorization failed. Your IP is not authorized. The program will exit in 3 seconds.")
@@ -44,19 +42,15 @@ func main() {
 	}
 	color.HiGreen("Authorization successful. Starting services...")
 
-	// Initialize and start services.
 	if err := startup(); err != nil {
 		log.Panic(err)
 	}
 
-	// Gracefully wait for the program to terminate.
 	waitForShutdown()
 	cleanup()
 }
 
-// checkAuth performs the authorization check.
 func checkAuth() bool {
-	// Set a 5-second timeout.
 	client := http.Client{Timeout: 5 * time.Second}
 	resp, err := client.Get(authURL)
 	if err != nil {
@@ -79,7 +73,6 @@ func checkAuth() bool {
 	return string(body) == "true"
 }
 
-// startup encapsulates the startup logic.
 func startup() error {
 	config.LoadConfig()
 	initTrafficLimiter()
@@ -89,13 +82,11 @@ func startup() error {
 	if err != nil {
 		return fmt.Errorf("failed to create file watcher: %w", err)
 	}
-	// Start config monitoring in a separate goroutine to avoid blocking.
 	go monitorConfig(watcher)
 
 	return nil
 }
 
-// waitForShutdown encapsulates the signal listening logic.
 func waitForShutdown() {
 	osSignals := make(chan os.Signal, 1)
 	signal.Notify(osSignals, os.Interrupt, syscall.SIGTERM)
@@ -104,8 +95,7 @@ func waitForShutdown() {
 
 func initTrafficLimiter() {
 	color.HiCyan("Initializing traffic limiter...")
-	// Note: This assumes NewTrafficLimiter returns an instance that implements TrafficLimiterInterface.
-	limiter := traffic.NewTrafficLimiter("traffic_data.log")
+	limiter := traffic.NewTrafficLimiter("traffic_data.json")
 	trafficLimiter = limiter
 	traffic.SetGlobalTrafficLimiter(limiter)
 	color.HiGreen("Traffic limiter initialized.")
@@ -113,7 +103,6 @@ func initTrafficLimiter() {
 }
 
 func startTrafficStatsDisplay() {
-	// Display stats immediately on startup.
 	displayTrafficStats()
 
 	ticker := time.NewTicker(5 * time.Minute)
@@ -134,7 +123,6 @@ func displayTrafficStats() {
 		return
 	}
 
-	// Sort players to ensure consistent output order.
 	players := make([]string, 0, len(stats))
 	for player := range stats {
 		players = append(players, player)
@@ -177,47 +165,56 @@ func monitorConfig(watcher *fsnotify.Watcher) {
 	ctx, cancel := context.WithCancel(context.Background())
 	service.ExecuteServices(ctx)
 
-	// Move watcher.Add inside the goroutine to ensure it runs before defer watcher.Close().
 	if err := watcher.Add("NoDelay.json"); err != nil {
 		log.Println(color.HiRedString("Failed to watch config file: %v", err))
-		return
 	}
+    if err := watcher.Add("traffic_data.json"); err != nil {
+        log.Println(color.HiRedString("Failed to watch traffic data file: %v", err))
+    }
 
 	reloadSignal := make(chan os.Signal, 1)
 	signal.Notify(reloadSignal, syscall.SIGHUP)
 	defer signal.Stop(reloadSignal)
 
-	for {
-		select {
-		case <-reloadSignal:
-			// Received SIGHUP signal, trigger reload.
-			goto reload
+	configReloadTimer := time.NewTimer(time.Hour)
+    configReloadTimer.Stop()
+    trafficReloadTimer := time.NewTimer(time.Hour)
+    trafficReloadTimer.Stop()
 
-		case event, ok := <-watcher.Events:
-			if !ok {
-				return
-			}
-			if event.Has(fsnotify.Write) {
-				// File write event, wait for debounce then reload.
-				timer := time.NewTimer(100 * time.Millisecond)
-				for {
-					select {
-					case <-watcher.Events:
-						timer.Reset(100 * time.Millisecond)
-					case <-timer.C:
-						goto reload
-					}
-				}
-			}
+    for {
+        select {
+        case <-reloadSignal:
+            goto reloadConfig
 
-		case err, ok := <-watcher.Errors:
-			if !ok {
-				return
-			}
-			log.Println(color.HiRedString("Error while watching config: ", err))
-			return
-		}
-		reload:
+        case event, ok := <-watcher.Events:
+            if !ok {
+                return
+            }
+            if event.Has(fsnotify.Write) {
+                switch event.Name {
+                case "NoDelay.json":
+                    configReloadTimer.Reset(100 * time.Millisecond)
+                case "traffic_data.json":
+                    trafficReloadTimer.Reset(100 * time.Millisecond)
+                }
+            }
+
+        case <-configReloadTimer.C:
+            goto reloadConfig
+
+        case <-trafficReloadTimer.C:
+            goto reloadTraffic
+
+        case err, ok := <-watcher.Errors:
+            if !ok {
+                return
+            }
+            log.Println(color.HiRedString("Error while watching config: ", err))
+            return
+        }
+        continue
+
+		reloadConfig:
 			log.Println(color.HiMagentaString("File change detected, reloading configuration..."))
 			if config.LoadLists(true) {
 				log.Println(color.HiMagentaString("Lists reloaded successfully."))
@@ -227,8 +224,15 @@ func monitorConfig(watcher *fsnotify.Watcher) {
 				ctx, cancel = context.WithCancel(context.Background())
 				service.ExecuteServices(ctx)
 			} else {
-				log.Println(color.HiRedString("Failed to reload lists."))
+				log.Println(color.HiRedString("Failed to reload config."))
 			}
+			continue
+		
+		reloadTraffic:
+        	if trafficLimiter != nil {
+            	trafficLimiter.ReloadData()
+        	}
+        	continue
 	}
 }
 
@@ -242,6 +246,6 @@ func cleanup() {
 		color.HiGreen("Traffic data saved.")
 	}
 
-	color.HiGreen("Services have been shut down gracefully.")
+	color.HiGreen("Services have been shut down.")
 	os.Exit(0)
 }
