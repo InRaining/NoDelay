@@ -4,8 +4,8 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: '要发布的版本号 (例如: v5.3.0)'
-        required: false
+        description: '要发布的版本号'
+        required: true
 
 permissions:
   contents: write
