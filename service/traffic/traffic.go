@@ -5,6 +5,7 @@ import (
     "log"
     "net"
     "sync"
+    "syscall"
     "time"
 
     "github.com/InRaining/NoDelay/config"
@@ -130,6 +131,14 @@ func (tmc *AccurateTrafficMonitorConn) Write(b []byte) (n int, err error) {
         }
     }
     return
+}
+
+func (tmc *AccurateTrafficMonitorConn) SyscallConn() (syscall.RawConn, error) {
+    sc, ok := tmc.Conn.(syscall.Conn)
+    if !ok {
+        return nil, fmt.Errorf("underlying connection does not implement syscall.Conn")
+    }
+    return sc.SyscallConn()
 }
 
 func (tmc *AccurateTrafficMonitorConn) Close() error {
