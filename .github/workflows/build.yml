@@ -1,12 +1,34 @@
 name: build
 
 on:
-  release:
-    types: [published]
   workflow_dispatch:
+    inputs:
+      version:
+        description: '要发布的版本号 (例如: v5.3.0)'
+        required: false
 
 jobs:
+  create_release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }}
+    steps:
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          release_name: Release ${{ github.event.inputs.version }}
+          body: |
+            New release: ${{ github.event.inputs.version }}
+          draft: false
+          prerelease: false
+
   build:
+    needs: create_release
     strategy:
       matrix:
         include:
@@ -57,12 +79,13 @@ jobs:
         GOARCH: ${{ matrix.goarch }}
         GOAMD64: ${{ matrix.goamd64 }}
       run: |
-        output_name="NoDelay-${GOOS}-${GOARCH}"
+        version_tag="${{ github.event.inputs.version }}"
+        output_name="NoDelay-${version_tag}-${GOOS}-${GOARCH}"
         [ -n "${GOAMD64}" ] && output_name="${output_name}-${GOAMD64}"
         [ "${GOOS}" = "windows" ] && output_name="${output_name}.exe"
         
         go build -v -trimpath \
-          -ldflags "-X \"github.com/InRaining/NoDelay/version.CommitHash=${{ steps.hash.outputs.git_hash }}\" -s -w -buildid=" \
+          -ldflags "-X \"github.com/InRaining/NoDelay/version.CommitHash=${{ steps.hash.outputs.git_hash }}\" -X \"github.com/InRaining/NoDelay/version.Version=${version_tag}\" -s -w -buildid=" \
           -o "${output_name}"
 
     - name: Install UPX
@@ -70,15 +93,20 @@ jobs:
 
     - name: Compress with UPX
       run: |
-        binary_name="NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}"
+        version_tag="${{ github.event.inputs.version }}"
+        binary_name="NoDelay-${version_tag}-${{ matrix.goos }}-${{ matrix.goarch }}"
         [ -n "${{ matrix.goamd64 }}" ] && binary_name="${binary_name}-${{ matrix.goamd64 }}"
         [ "${{ matrix.goos }}" = "windows" ] && binary_name="${binary_name}.exe"
         
         echo "Compressing ${binary_name} with UPX..."
         upx --best --lzma "${binary_name}"
 
-    - name: Upload Build Artifact
-      uses: actions/upload-artifact@v4
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        name: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goamd64 && format('-{0}', matrix.goamd64) || '' }}${{ matrix.goos == 'windows' && '.exe' || '' }}
-        path: NoDelay-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goamd64 && format('-{0}', matrix.goamd64) || '' }}${{ matrix.goos == 'windows' && '.exe' || '' }}
+        upload_url: ${{ needs.create_release.outputs.upload_url }}
+        asset_path: ./NoDelay-${{ github.event.inputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goamd64 && format('-{0}', matrix.goamd64) || '' }}${{ matrix.goos == 'windows' && '.exe' || '' }}
+        asset_name: NoDelay-${{ github.event.inputs.version }}-${{ matrix.goos }}-${{ matrix.goarch }}${{ matrix.goamd64 && format('-{0}', matrix.goamd64) || '' }}${{ matrix.goos == 'windows' && '.exe' || '' }}
+        asset_content_type: application/octet-stream

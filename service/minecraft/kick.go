@@ -122,7 +122,7 @@ func generateDownMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 			{Text: "您无法加入当前服务器！\n"},
 			{Text: "理由: "},
 			{Color: mcprotocol.LightPurple, Text: "当前正在进行停机维护！\n"},
-			{Text: "请关注官方QQ群内信息了解恢复时间！\n\n"},
+			{Text: "请关注相关信息渠道了解恢复时间！\n\n"},
 
 			{
 				Color: mcprotocol.Gray,
