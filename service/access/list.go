@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/set"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
+	"github.com/InRaining/NoDelay/common/set"
+	"github.com/InRaining/NoDelay/config"
 )
 
 func GetTargetList(listName string) (set.StringSet, error) {

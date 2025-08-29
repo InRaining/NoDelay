@@ -7,8 +7,8 @@ import (
 	"runtime"
 	"syscall"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
+	"github.com/InRaining/NoDelay/common"
+	"github.com/InRaining/NoDelay/common/buf"
 
 	"github.com/fatih/color"
 )

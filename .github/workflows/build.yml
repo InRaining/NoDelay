@@ -62,7 +62,7 @@ jobs:
         [ "${GOOS}" = "windows" ] && output_name="${output_name}.exe"
         
         go build -v -trimpath \
-          -ldflags "-X \"github.com/CubewhyMC/Nodelay-Proxy-Server/version.CommitHash=${{ steps.hash.outputs.git_hash }}\" -s -w -buildid=" \
+          -ldflags "-X \"github.com/InRaining/NoDelay/version.CommitHash=${{ steps.hash.outputs.git_hash }}\" -s -w -buildid=" \
           -o "${output_name}"
 
     - name: Install UPX

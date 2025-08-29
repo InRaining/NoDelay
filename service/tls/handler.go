@@ -6,10 +6,10 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/outbound"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/access"
+	"github.com/InRaining/NoDelay/common"
+	"github.com/InRaining/NoDelay/config"
+	"github.com/InRaining/NoDelay/outbound"
+	"github.com/InRaining/NoDelay/service/access"
 )
 
 func NewConnHandler(s *config.ConfigProxyService,

@@ -4,8 +4,8 @@ import (
 	"errors"
 	"io"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/rw"
+	"github.com/InRaining/NoDelay/common/buf"
+	"github.com/InRaining/NoDelay/common/rw"
 )
 
 const MaxVarIntLen = 5

@@ -3,7 +3,7 @@ package mcprotocol
 import (
 	"encoding/binary"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
+	"github.com/InRaining/NoDelay/common/buf"
 )
 
 const (

@@ -3,7 +3,7 @@ package transfer
 import (
 	"fmt"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/console"
+	"github.com/InRaining/NoDelay/console"
 
 	"github.com/fatih/color"
 	"github.com/zhangyunhao116/fastrand"

@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
+	"github.com/InRaining/NoDelay/config"
 )
 
 func ExecuteServices(ctx context.Context) {

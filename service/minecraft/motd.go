@@ -3,9 +3,9 @@ package minecraft
 import (
 	"encoding/json"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/transfer"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/version"
+	"github.com/InRaining/NoDelay/config"
+	"github.com/InRaining/NoDelay/service/transfer"
+	"github.com/InRaining/NoDelay/version"
 )
 
 type motdObject struct {

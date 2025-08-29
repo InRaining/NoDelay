@@ -3,7 +3,7 @@ package config
 import (
 	"encoding/json"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/set"
+	"github.com/InRaining/NoDelay/common/set"
 )
 
 type configMainTemp struct {

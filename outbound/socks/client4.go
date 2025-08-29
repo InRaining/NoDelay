@@ -8,7 +8,7 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/rw"
+	"github.com/InRaining/NoDelay/common/rw"
 )
 
 const (

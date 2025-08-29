@@ -8,12 +8,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/mcprotocol"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/access"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/transfer"
+	"github.com/InRaining/NoDelay/common"
+	"github.com/InRaining/NoDelay/common/buf"
+	"github.com/InRaining/NoDelay/common/mcprotocol"
+	"github.com/InRaining/NoDelay/config"
+	"github.com/InRaining/NoDelay/service/access"
+	"github.com/InRaining/NoDelay/service/transfer"
 
 	"github.com/fatih/color"
 )

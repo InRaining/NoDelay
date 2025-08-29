@@ -5,11 +5,11 @@ import (
 	"net"
 	"strconv"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/minecraft"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/tls"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/service/transfer"
+	"github.com/InRaining/NoDelay/common"
+	"github.com/InRaining/NoDelay/config"
+	"github.com/InRaining/NoDelay/service/minecraft"
+	"github.com/InRaining/NoDelay/service/tls"
+	"github.com/InRaining/NoDelay/service/transfer"
 
 	"github.com/fatih/color"
 )

@@ -6,7 +6,7 @@ import (
 	"math"
 	"net"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
+	"github.com/InRaining/NoDelay/common/buf"
 )
 
 type Conn struct {

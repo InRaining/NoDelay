@@ -1,4 +1,4 @@
-module github.com/CubeWhyMC/NoDelay-Proxy-Server
+module github.com/InRaining/NoDelay
 
 go 1.18
 

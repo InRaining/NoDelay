@@ -1,8 +1,8 @@
 package config
 
 import (
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/set"
-	outbound2 "github.com/CubeWhyMC/NoDelay-Proxy-Server/outbound"
+	"github.com/InRaining/NoDelay/common/set"
+	outbound2 "github.com/InRaining/NoDelay/outbound"
 )
 
 type configMain struct {

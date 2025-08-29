@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/mcprotocol"
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/config"
+	"github.com/InRaining/NoDelay/common/mcprotocol"
+	"github.com/InRaining/NoDelay/config"
 )
 
 func generateKickMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {

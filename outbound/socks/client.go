@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/outbound"
+	"github.com/InRaining/NoDelay/outbound"
 )
 
 type Client struct {

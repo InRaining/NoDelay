@@ -5,7 +5,7 @@ import (
 	"io"
 	"testing"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
+	"github.com/InRaining/NoDelay/common/buf"
 )
 
 // samples from https://wiki.vg/Protocol#VarInt_and_VarLong

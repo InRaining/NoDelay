@@ -6,7 +6,7 @@ import (
 	"errors"
 	"io"
 
-	"github.com/CubeWhyMC/NoDelay-Proxy-Server/common/buf"
+	"github.com/InRaining/NoDelay/common/buf"
 )
 
 // Modified from https://github.com/Tnze/go-mc/blob/master/chat/message.go
