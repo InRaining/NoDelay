@@ -5,8 +5,10 @@ on:
     inputs:
       version:
         description: '要发布的版本号 (例如: v5.3.0)'
-        required: true
-        default: 'default'
+        required: false
+
+permissions:
+  contents: write
 
 jobs:
   create_release:
