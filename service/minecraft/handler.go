@@ -244,17 +244,9 @@ func NewConnHandler(s *config.ConfigProxyService,
 					accessibility = "PASS"
 				}
 			case access.JokeMode:
-					if hit {
 					accessibility = "JOKE"
-				} else {
-					accessibility = "JOKE"
-				}
 			case access.DownMode:
-					if hit {
 					accessibility = "DOWN"
-				} else {
-					accessibility = "DOWN"
-				}
 			}
 		}
 	}

@@ -50,7 +50,7 @@ func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 	// load access lists
 	switch s.IPAccess.Mode {
 	case access.DefaultMode:
-	case access.AllowMode, access.BlockMode:
+	case access.AllowMode, access.BlockMode, access.DownMode, access.JokeMode:
 		if s.IPAccess.ListTags == nil {
 			log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 		}
@@ -67,7 +67,7 @@ func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 	if isMinecraftHandleNeeded {
 		switch s.Minecraft.NameAccess.Mode {
 		case access.DefaultMode:
-		case access.AllowMode, access.BlockMode:
+		case access.AllowMode, access.BlockMode, access.DownMode, access.JokeMode:
 			if s.Minecraft.NameAccess.ListTags == nil {
 				log.Panic(color.HiRedString("Service %s: ListTags can't be null when access control enabled.", s.Name))
 			}
@@ -127,6 +127,12 @@ func StartNewService(ctx context.Context, s *config.ConfigProxyService) {
 					forciblyCloseTCP(conn)
 					continue
 				}
+			case access.DownMode:
+					forciblyCloseTCP(conn)
+					continue
+			case access.JokeMode:
+					forciblyCloseTCP(conn)
+					continue
 			}
 		}
 		go newConnReceiver(s, conn.(*net.TCPConn), options)
