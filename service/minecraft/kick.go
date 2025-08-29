@@ -84,7 +84,6 @@ func generateNewMessage(s *config.ConfigProxyService, name string) mcprotocol.Me
 }
 
 func generateJokeMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
-	banID := generateRandomString(8)
 	banID := generateRandomStringWithCharset(8, "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789")
 	return mcprotocol.Message{
 		Color: mcprotocol.White,
@@ -102,6 +101,14 @@ func generateJokeMessage(s *config.ConfigProxyService, name string) mcprotocol.M
 			{Color: mcprotocol.Gray, Text: "Sharing your Ban ID may affect the processing of your appeal!"},
 		},
 	}
+}
+
+func generateRandomStringWithCharset(length int, charset string) string {
+	b := make([]byte, length)
+	for i := range b {
+		b[i] = charset[int(time.Now().UnixNano()+int64(i))%len(charset)]
+	}
+	return string(b)
 }
 
 func generateDownMessage(s *config.ConfigProxyService, name string) mcprotocol.Message {
