@@ -1,4 +1,3 @@
 package version
-const Version = "v5.1-rc.2"
+const Version = "v5.2.1"
 var CommitHash = "ManualBuilt"
-
