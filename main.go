@@ -95,7 +95,7 @@ func waitForShutdown() {
 
 func initTrafficLimiter() {
 	color.HiCyan("Initializing traffic limiter...")
-	limiter := traffic.NewTrafficLimiter("traffic_data.json")
+	limiter := traffic.NewTrafficLimiter("TrafficTable.json")
 	trafficLimiter = limiter
 	traffic.SetGlobalTrafficLimiter(limiter)
 	color.HiGreen("Traffic limiter initialized.")
@@ -168,7 +168,7 @@ func monitorConfig(watcher *fsnotify.Watcher) {
 	if err := watcher.Add("NoDelay.json"); err != nil {
 		log.Println(color.HiRedString("Failed to watch config file: %v", err))
 	}
-    if err := watcher.Add("traffic_data.json"); err != nil {
+    if err := watcher.Add("TrafficTable.json"); err != nil {
         log.Println(color.HiRedString("Failed to watch traffic data file: %v", err))
     }
 
@@ -194,7 +194,7 @@ func monitorConfig(watcher *fsnotify.Watcher) {
                 switch event.Name {
                 case "NoDelay.json":
                     configReloadTimer.Reset(100 * time.Millisecond)
-                case "traffic_data.json":
+                case "TrafficTable.json":
                     trafficReloadTimer.Reset(100 * time.Millisecond)
                 }
             }

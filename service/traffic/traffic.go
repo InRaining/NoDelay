@@ -54,11 +54,17 @@ func CheckTrafficLimitByPlayer(s *config.ConfigProxyService, playerName string) 
         return globalTrafficLimiter.CanUseTraffic(playerName, 0, defaultLimitMB)
     }
 
-    // Check if usage exceeds 98%.
-    if percentage >= 98.0 {
-        log.Printf("Player %s traffic limit exceeded: %.2f MB / %.0f MB (%.1f%%)",
-            playerName, used, limit, percentage)
-        return false
+    thresholds := []float64{25.0, 50.0, 75.0, 80.0, 90.0, 98.0}
+    for _, t := range thresholds {
+        if percentage >= t {
+            log.Printf("Player %s traffic usage warning: %.2f MB / %.0f MB (%.1f%%) threshold %.1f%% reached",
+                playerName, used, limit, percentage, t)
+            // Only return false if percentage >= 98%
+            if t == 98.0 {
+                return false
+            }
+            break
+        }
     }
 
     return true
