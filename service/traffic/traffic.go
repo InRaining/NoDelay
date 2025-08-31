@@ -53,20 +53,13 @@ func CheckTrafficLimitByPlayer(s *config.ConfigProxyService, playerName string) 
     if used == 0 && limit == 0 {
         return globalTrafficLimiter.CanUseTraffic(playerName, 0, defaultLimitMB)
     }
-
-    thresholds := []float64{25.0, 50.0, 75.0, 80.0, 90.0, 98.0}
-    for _, t := range thresholds {
-        if percentage >= t {
-            log.Printf("Player %s traffic usage warning: %.2f MB / %.0f MB (%.1f%%) threshold %.1f%% reached",
-                playerName, used, limit, percentage, t)
-            // Only return false if percentage >= 98%
-            if t == 98.0 {
-                return false
-            }
-            break
-        }
+    
+    if percentage >= 98.0 {
+        log.Printf("Player %s traffic limit exceeded: %.2f MB / %.0f MB (%.1f%%)",
+            playerName, used, limit, percentage)
+        return false
     }
-
+    
     return true
 }
 
@@ -156,4 +149,5 @@ func (tmc *AccurateTrafficMonitorConn) Close() error {
     log.Printf("Session ended for %s: Read=%d bytes, Write=%d bytes, Total=%d bytes, Duration=%s",
         tmc.playerName, tmc.totalReadBytes, tmc.totalWriteBytes, total, duration)
     return tmc.Conn.Close()
+
 }
