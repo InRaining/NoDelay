@@ -75,7 +75,15 @@ func checkAuth() bool {
 
 func startup() error {
 	config.LoadConfig()
+
+    if _, err := os.Stat("TrafficTable.json"); os.IsNotExist(err) {
+        log.Println(color.HiYellowString("Traffic Table is not exists. Generating a new one..."))
+        if err := os.WriteFile("TrafficTable.json", []byte("{}"), 0644); err != nil {
+            return fmt.Errorf("failed to create Traffic Table: %w", err)
+        }
+    }
 	initTrafficLimiter()
+
 	service.Listeners = make([]net.Listener, 0, len(config.Config.Services))
 
 	watcher, err := fsnotify.NewWatcher()
