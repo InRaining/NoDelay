@@ -98,8 +98,8 @@ func (l *Logger) getLogsAsString() string {
 // StartWebServer 启动用于显示日志的HTTP服务器
 func StartWebServer() {
     port := "8088"
-    if config.Config.WebLogPort > 0 {
-        port = fmt.Sprintf("%d", config.Config.WebLogPort)
+    if config.Config.Configuration.WebLogPort > 0 {
+        port = fmt.Sprintf("%d", config.Config.Configuration.WebLogPort)
     }
 
     addr := "0.0.0.0:" + port

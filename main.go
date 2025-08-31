@@ -18,19 +18,23 @@ import (
 	"github.com/InRaining/NoDelay/service"
 	"github.com/InRaining/NoDelay/service/traffic"
 	"github.com/InRaining/NoDelay/version"
+	"github.com/InRaining/NoDelay/service/web"
 
 	"github.com/fatih/color"
 	"github.com/fsnotify/fsnotify"
 )
 
-var trafficLimiter traffic.TrafficLimiterInterface
+var (
+	trafficLimiter traffic.TrafficLimiterInterface
+	webLogger      *web.Logger
+)
 
 const authURL = "https://bind.hln.asia/NoDelay/NoDelay.php"
 
 func main() {
-	logger := web.NewLogger(color.Output)
-	log.SetOutput(logger)
-	color.SetOutput(logger)
+	webLogger = web.NewLogger(color.Output)
+    log.SetOutput(webLogger)
+    color.SetOutput(webLogger)
 
 	console.SetTitle(fmt.Sprintf("NoDelay %v | Running...", version.Version))
 	color.HiGreen("Welcome to NoDelay %s (%s)!", version.Version, version.CommitHash)
@@ -260,5 +264,10 @@ func cleanup() {
 	}
 
 	color.HiGreen("Services have been shut down.")
+
+	if webLogger != nil {
+        webLogger.Close()
+    }
+	
 	os.Exit(0)
 }
