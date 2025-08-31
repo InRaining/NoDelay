@@ -34,7 +34,7 @@ const authURL = "https://bind.hln.asia/NoDelay/NoDelay.php"
 func main() {
 	webLogger = web.NewLogger(color.Output)
     log.SetOutput(webLogger)
-    color.SetOutput(webLogger)
+	color.Output = webLogger
 
 	console.SetTitle(fmt.Sprintf("NoDelay %v | Running...", version.Version))
 	color.HiGreen("Welcome to NoDelay %s (%s)!", version.Version, version.CommitHash)
@@ -268,6 +268,6 @@ func cleanup() {
 	if webLogger != nil {
         webLogger.Close()
     }
-	
+
 	os.Exit(0)
 }
