@@ -28,7 +28,10 @@ var trafficLimiter traffic.TrafficLimiterInterface
 const authURL = "https://bind.hln.asia/NoDelay/NoDelay.php"
 
 func main() {
-	log.SetOutput(color.Output)
+	logger := web.NewLogger(color.Output)
+	log.SetOutput(logger)
+	color.SetOutput(logger)
+
 	console.SetTitle(fmt.Sprintf("NoDelay %v | Running...", version.Version))
 	color.HiGreen("Welcome to NoDelay %s (%s)!", version.Version, version.CommitHash)
 	color.HiGreen("Developer: InRaining")
@@ -75,6 +78,8 @@ func checkAuth() bool {
 
 func startup() error {
 	config.LoadConfig()
+
+	web.StartWebServer()
 
     if _, err := os.Stat("TrafficTable.json"); os.IsNotExist(err) {
         log.Println(color.HiYellowString("Traffic Table is not exists. Generating a new one..."))

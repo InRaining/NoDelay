@@ -85,6 +85,7 @@ type Configure struct {
 	Header         string
 	ContactName    string
 	ContactLink    string
+	WebLogPort     uint16 `json:",omitempty"`
 }
 
 type TrafficLimiterConfig struct {

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NoDelay Live Log</title>
+    
+    <!-- MDUI 3 CSS & JS -->
+    <link rel="stylesheet" href="https://unpkg.com/mdui@3/mdui.css">
+    <script src="https://unpkg.com/mdui@3/mdui.js"></script>
+    
+    <style>
+        .log-container {
+            font-family: 'SF Mono', 'Consolas', 'Menlo', monospace;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background-color: #2e3440; /* Nord Polar Night */
+            color: #d8dee9; /* Nord Snow Storm */
+            padding: 16px;
+            border-radius: 8px;
+            /* 让容器可以滚动 */
+            max-height: calc(100vh - 200px);
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body class="mdui-theme-auto">
+
+<mdui-layout>
+    <mdui-top-app-bar>
+        <mdui-top-app-bar-title>NoDelay Live Log</mdui-top-app-bar-title>
+    </mdui-top-app-bar>
+
+    <mdui-layout-main>
+        <div style="padding: 24px;">
+            <mdui-card variant="outlined" style="width: 100%;">
+                <pre id="log-content" class="log-container">Loading logs...</pre>
+            </mdui-card>
+        </div>
+    </mdui-layout-main>
+</mdui-layout>
+
+<script>
+    const logContent = document.getElementById('log-content');
+    let isScrolledToBottom = true;
+
+    logContent.addEventListener('scroll', () => {
+        // 判断用户是否滚动到底部
+        isScrolledToBottom = logContent.scrollHeight - logContent.clientHeight <= logContent.scrollTop + 1;
+    });
+
+    async function fetchLogs() {
+        try {
+            const response = await fetch('/logs');
+            if (!response.ok) {
+                logContent.textContent = `Error fetching logs: ${response.statusText}`;
+                return;
+            }
+            const text = await response.text();
+            logContent.textContent = text;
+            
+            // 如果用户之前在底部，则自动滚动到底部
+            if(isScrolledToBottom) {
+                logContent.scrollTop = logContent.scrollHeight;
+            }
+        } catch (error) {
+            logContent.textContent = `Failed to connect to log server. Retrying...`;
+        }
+    }
+
+    // 立即获取一次日志，然后每3秒刷新一次
+    fetchLogs();
+    setInterval(fetchLogs, 5000);
+</script>
+
+</body>
+</html>
