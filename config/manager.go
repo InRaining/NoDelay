@@ -78,7 +78,6 @@ func generateDefaultConfig() {
 		},
 		TrafficLimiter: &TrafficLimiterConfig{
 			EnableTrafficLimit: false,
-			TrafficLimitMB: 1024,
 		},
 		Lists: map[string]set.StringSet{
 			//"test": {"foo", "bar"},

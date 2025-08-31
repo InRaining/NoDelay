@@ -42,9 +42,10 @@ func CheckTrafficLimitByPlayer(s *config.ConfigProxyService, playerName string) 
         return true
     }
 
-    defaultLimitMB := int64(1024) // Default 1GB
     if config.Config.TrafficLimiter.TrafficLimitMB > 0 {
         defaultLimitMB = config.Config.TrafficLimiter.TrafficLimitMB
+    } else {
+        defaultLimitMB := int64(1024)
     }
 
     used, limit, percentage := globalTrafficLimiter.GetUserInfo(playerName)
